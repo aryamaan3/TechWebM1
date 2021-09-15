@@ -1,58 +1,118 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div>
+    <div v-if="expenses.length">
+      <ol>
+        <ol>
+          <li v-for="(expense, index) in expenses" :key="index">
+            id: {{expense.id}}, {{ expense.name }} - {{ expense.amount }}
+            <button @click="removeExpense(expense)">Remove</button>
+          </li>
+        </ol>
+      </ol>
+      <p>Total: {{ total }}</p>
+    </div>
+    <div v-else>
+      <p>Hooray! You didn't spend anything.</p>
+    </div>
+    <hr />
+    <p>New Expense:</p>
+    <form v-on:submit.prevent>
+      <div>
+        <input type="text" v-model="name" placeholder="What did you buy?" />
+      </div>
+      <div>
+        <input type="text" v-model="amount" placeholder="How much is it?" />
+      </div>
+      <div>
+        <button @click="addExpense()">Submit</button>
+      </div>
+    </form>
   </div>
 </template>
 
+
 <script>
+import _ from "lodash";
+ 
+import { collection, addDoc, doc, deleteDoc, onSnapshot } from "firebase/firestore";
+ 
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
+  name: "HelloWorld",
+  data: () => ({
+    name: "",
+    amount: "",
+    total: 0,
+    expenses: [],
+  }),
+  created() {
+    onSnapshot(collection(this.$db, "expenses"), (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        console.dir(change.type);
+        console.dir(change.doc.id);
+        console.dir(change.doc.data());
+ 
+        let r = change.doc.data();
+        let id = change.doc.id;
+        let pos;
+ 
+        switch (change.type) {
+          case "added":
+            r.id = id;
+            this.expenses.push(r);
+            break;
+          case "modified":
+            pos = this.expenses.findIndex((element) => element.id === id);
+            console.log("POS = " + pos + " id=" + id);
+            //console.dir(this.expenses);
+            r.id = id;
+            this.$set(this.expenses, pos, r);
+           // this.expenses[pos] = r; // marche pas, la vue ne se met pas à jour, il faut $set !!
+            break;
+          case "removed":
+            console.log("removed")
+            pos = this.expenses.findIndex((element) => element.id === id);
+            this.expenses.splice(pos, 1);
+            break;
+        }
+       });
+    });
+  },
+  methods: {
+    async addExpense() {
+      try {
+        const docRef = await addDoc(collection(this.$db, "expenses"), {
+          name: this.name,
+          amount: this.amount,
+          dateCreated: new Date(),
+        });
+        this.amount = "";
+        this.name = "";
+ 
+        console.log("Document written with ID: ", docRef.id);
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
+    },
+    async removeExpense(expense) {
+      await deleteDoc(doc(this.$db, "expenses", expense.id));
+      console.log('je supprime doc id = ' + expense.id)
+    },
+
+  },
+  watch: {
+    expenses() {
+      this.total = _.sumBy(this.expenses, function (expense) {
+        return parseFloat(expense.amount);
+      });
+    },
+  },
+};
 </script>
+
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
+div {
+  margin-bottom: 20px;
 }
 </style>
