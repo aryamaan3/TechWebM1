@@ -49,6 +49,7 @@ function init() {
                         for (let i = 0; i < resto.data.length; i++) {
                             this.restaurants.push(resto.data[i]);
                         }
+                        this.longeur = this.restaurants.length;
                     });
                 }).catch(function(error) {
                     console.log(error);
