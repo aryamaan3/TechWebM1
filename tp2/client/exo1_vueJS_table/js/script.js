@@ -8,18 +8,10 @@ function init() {
             this.getRestaurantsFromServer()
         },
         data: {
-            restaurants: [
-                {
-                    name: 'café de Paris',
-                    cuisine: 'Française'
-                },
-                {
-                    name: 'Sun City Café',
-                    cuisine: 'Américaine'
-                }
-            ],
+            restaurants: [],
             name: '',
-            cuisine: ''
+            cuisine: '', 
+            nbPage: 0
         },
         methods: {
             supprimerRestaurant(index) {
@@ -42,7 +34,7 @@ function init() {
                 return (index % 2) ? 'lightBlue' : 'pink';
             }, 
             getRestaurantsFromServer() {
-                fetch('http://localhost:8080/api/restaurants', {
+                fetch('http://localhost:8080/api/restaurants?page=0', {
                     method: 'GET'
                 }).then((resto) => {
                     resto.json().then((resto) => { //no lo sait
@@ -54,7 +46,41 @@ function init() {
                 }).catch(function(error) {
                     console.log(error);
                 });
+            }, 
+            getPrecedent() {
+                if (this.nbPage > 0) {
+                    this.nbPage--;
+                }
+                fetch('http://localhost:8080/api/restaurants?page='+this.nbPage, {
+                    method: 'GET'
+                }).then((resto) => {
+                    resto.json().then((resto) => { //no lo sait
+                        for (let i = 0; i < resto.data.length; i++) {
+                            this.restaurants = resto.data;
+                        }
+                        this.longeur = this.restaurants.length;
+                    });
+                }).catch(function(error) {
+                    console.log(error);
+                });
+            }, 
+
+            getSuivant() {
+                this.nbPage++;
+                fetch('http://localhost:8080/api/restaurants?page='+this.nbPage, {
+                    method: 'GET'
+                }).then((resto) => {
+                    resto.json().then((resto) => { //no lo sait
+                        for (let i = 0; i < resto.data.length; i++) {
+                            this.restaurants = resto.data;
+                        }
+                        this.longeur = this.restaurants.length;
+                    });
+                }).catch(function(error) {
+                    console.log(error);
+                });
             }
+
         }
     })
 }
