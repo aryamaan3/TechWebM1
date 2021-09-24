@@ -27,7 +27,18 @@
         <button>Ajouter</button>
     </form>
 
+    <form v-on:submit="search">
+        <label>
+            Rechercher un restau : <input type="text" required v-model="recherche">
+        </label>
+        <button>Chercher</button>
+    </form>
+
     <h1>Nombre de restaurants : {{restaurants.length}}</h1>
+    <div class="slidecontainer">
+        <input v-on:input="slideChanged($event)" type="range" min="5" max="100" value="5" class="slider" id="myRange">
+        <p id="valeurSlide">{{range}}</p>
+    </div>
     <table>
         <tr>
             <th>Name</th>
@@ -41,8 +52,8 @@
             </tr>
         </tbody>
     </table>
-    <button v-on:click="getPrecedent">Précédant</button>
-    <button v-on:click="getSuivant">Suivant</button>
+    <button v-on:click="getRestaurantsFromServer($event)" value="0">Précédant</button>
+    <button v-on:click="getRestaurantsFromServer($event)" value="1">Suivant</button>
 </div>
 </body>
 

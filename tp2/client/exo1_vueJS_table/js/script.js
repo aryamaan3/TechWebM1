@@ -11,7 +11,9 @@ function init() {
             restaurants: [],
             name: '',
             cuisine: '', 
-            nbPage: 0
+            recherche:'',
+            nbPage: 0, 
+            range: 5
         },
         methods: {
             supprimerRestaurant(index) {
@@ -33,25 +35,19 @@ function init() {
             getColor(index) {
                 return (index % 2) ? 'lightBlue' : 'pink';
             }, 
-            getRestaurantsFromServer() {
-                fetch('http://localhost:8080/api/restaurants?page=0', {
-                    method: 'GET'
-                }).then((resto) => {
-                    resto.json().then((resto) => { //no lo sait
-                        for (let i = 0; i < resto.data.length; i++) {
-                            this.restaurants.push(resto.data[i]);
+            getRestaurantsFromServer(isSuivant) {
+                console.log(this.nbPage)
+                if(isSuivant){
+                    if(isSuivant.target.value === "1"){
+                        this.nbPage++;
+                    }
+                    else{
+                        if (this.nbPage > 0) {
+                            this.nbPage--;
                         }
-                        this.longeur = this.restaurants.length;
-                    });
-                }).catch(function(error) {
-                    console.log(error);
-                });
-            }, 
-            getPrecedent() {
-                if (this.nbPage > 0) {
-                    this.nbPage--;
+                    }
                 }
-                fetch('http://localhost:8080/api/restaurants?page='+this.nbPage, {
+                fetch('http://localhost:8080/api/restaurants?page='+this.nbPage+"&pagesize="+this.range, {
                     method: 'GET'
                 }).then((resto) => {
                     resto.json().then((resto) => { //no lo sait
@@ -64,17 +60,21 @@ function init() {
                     console.log(error);
                 });
             }, 
-
-            getSuivant() {
-                this.nbPage++;
-                fetch('http://localhost:8080/api/restaurants?page='+this.nbPage, {
+            slideChanged(event) {
+                if(event.target.value){
+                    this.range = event.target.value;
+                }
+                this.getRestaurantsFromServer()
+            }, 
+            search(event) {
+                event.preventDefault();
+                
+                console.log(this.recherche)
+                fetch('http://localhost:8080/api/restaurants/2', {
                     method: 'GET'
                 }).then((resto) => {
                     resto.json().then((resto) => { //no lo sait
-                        for (let i = 0; i < resto.data.length; i++) {
-                            this.restaurants = resto.data;
-                        }
-                        this.longeur = this.restaurants.length;
+                        console.log(resto.data)
                     });
                 }).catch(function(error) {
                     console.log(error);
