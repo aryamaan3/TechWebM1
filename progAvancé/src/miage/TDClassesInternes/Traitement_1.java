@@ -1,6 +1,7 @@
 package miage.TDClassesInternes;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class Traitement_1 implements Consumer<UE> {
@@ -23,16 +24,36 @@ public class Traitement_1 implements Consumer<UE> {
         listOfUE.add(UE_4);
         listOfUE.add(UE_5);
 
-        Traitement_1 t = new Traitement_1();
+        Traitement_1 t = new Traitement_1(); 
 
-        //listOfUE.forEach(t); non statique
-        //System.out.println(listOfUE);
+        listOfUE.forEach(t); //non statique
+        System.out.println(listOfUE);
 
         class Traitement_1_bis implements Consumer<UE>{
 
             @Override
             public void accept(UE ue) {
                 ue.annee++;
+            }
+        }
+
+        class Traitement_2_bis implements Consumer<UE>{
+
+            @Override
+            public void accept(UE ue) {
+                if(Objects.equals(ue.nomEnseignant, "Dupont")){
+                    ue.annee++;
+                }
+            }
+        }
+
+        class Traitement_3_bis implements Consumer<UE>{
+
+            @Override
+            public void accept(UE ue) {
+                if (Objects.equals(ue.typeControle, "QCM")){
+                    ue.rattrapage=true;
+                }
             }
         }
 

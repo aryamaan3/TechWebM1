@@ -1,6 +1,7 @@
 package miage.TDClassesInternes;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class UE {
@@ -26,6 +27,24 @@ public class UE {
             ue.annee ++;
         }
 
+    }
+
+    class traitement2 implements Consumer<UE> {
+        @Override
+        public void accept(UE ue) {
+            if(Objects.equals(ue.nomEnseignant, "Dupont")){
+                ue.annee++;
+            }
+        }
+    }
+
+    class traitement3 implements Consumer<UE>{
+        @Override
+        public void accept(UE ue) {
+            if (Objects.equals(ue.typeControle, "QCM")){
+                ue.rattrapage=true;
+            }
+        }
     }
 
     @Override
@@ -59,7 +78,16 @@ public class UE {
         //STATIC
         //add static to addAnnee
         //addAnnee t = new addAnnee();
-        //listofUE.forEach(t)
+        //listOfUE.forEach(t)
+
+        //Traitement_2 t2 = new Traitement_2();
+        Traitement_3 t = new Traitement_3();
+
+
+
+
+        listOfUE.forEach(t);
+        System.out.println(listOfUE);
 
     }
 }
