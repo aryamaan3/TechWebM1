@@ -9,7 +9,7 @@ public class UE {
     public Integer annee;
     Boolean rattrapage;
     addAnnee add;
-    UE(String nom, String nomDiplome, String nomEnseignant, String typeControle, Integer annee, Boolean rattrapage){
+    public UE(String nom, String nomDiplome, String nomEnseignant, String typeControle, Integer annee, Boolean rattrapage){
         this.nom = nom;
         this.nomDiplome = nomDiplome;
         this.nomEnseignant = nomEnseignant;
